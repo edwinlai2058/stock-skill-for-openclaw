@@ -96,14 +96,14 @@ export class DataFetcher {
    * Validates that the API response is a non-empty array.
    * FMP returns { "Error Message": "..." } for invalid tickers or an empty array.
    */
-  private validateApiResponseArray(data: unknown, ticker: string): unknown[] {
+  private validateApiResponseArray(data: unknown, ticker: string): Record<string, unknown>[] {
     if (!Array.isArray(data)) {
       throw new TickerNotFoundError(ticker);
     }
     if (data.length === 0) {
       throw new TickerNotFoundError(ticker);
     }
-    return data;
+    return data as Record<string, unknown>[];
   }
 
   async fetchIncomeStatement(ticker: string): Promise<IncomeStatement[]> {

@@ -14,9 +14,17 @@ import {
 
 // --- Arbitraries for FMP-shaped raw API responses ---
 
+/**
+ * Safe date arbitrary that avoids Invalid Date values from fc.date().
+ * Uses integer timestamps to guarantee valid Date objects.
+ */
+const safeDateArb = fc
+  .integer({ min: new Date('2000-01-01').getTime(), max: new Date('2030-12-31').getTime() })
+  .map(ts => new Date(ts));
+
 /** Generates a random FMP income statement item (raw API shape). */
 const fmpIncomeStatementItemArb = fc.record({
-  date: fc.date({ min: new Date('2000-01-01'), max: new Date('2030-12-31') }).map(d => d.toISOString().slice(0, 10)),
+  date: safeDateArb.map(d => d.toISOString().slice(0, 10)),
   revenue: fc.double({ min: -1e12, max: 1e12, noNaN: true, noDefaultInfinity: true }),
   grossProfit: fc.double({ min: -1e12, max: 1e12, noNaN: true, noDefaultInfinity: true }),
   operatingIncome: fc.double({ min: -1e12, max: 1e12, noNaN: true, noDefaultInfinity: true }),
@@ -27,7 +35,7 @@ const fmpIncomeStatementItemArb = fc.record({
 
 /** Generates a random FMP balance sheet item (raw API shape). */
 const fmpBalanceSheetItemArb = fc.record({
-  date: fc.date({ min: new Date('2000-01-01'), max: new Date('2030-12-31') }).map(d => d.toISOString().slice(0, 10)),
+  date: safeDateArb.map(d => d.toISOString().slice(0, 10)),
   totalAssets: fc.double({ min: -1e12, max: 1e12, noNaN: true, noDefaultInfinity: true }),
   totalLiabilities: fc.double({ min: -1e12, max: 1e12, noNaN: true, noDefaultInfinity: true }),
   totalStockholdersEquity: fc.double({ min: -1e12, max: 1e12, noNaN: true, noDefaultInfinity: true }),
@@ -37,7 +45,7 @@ const fmpBalanceSheetItemArb = fc.record({
 
 /** Generates a random FMP cash flow statement item (raw API shape). */
 const fmpCashFlowItemArb = fc.record({
-  date: fc.date({ min: new Date('2000-01-01'), max: new Date('2030-12-31') }).map(d => d.toISOString().slice(0, 10)),
+  date: safeDateArb.map(d => d.toISOString().slice(0, 10)),
   operatingCashFlow: fc.double({ min: -1e12, max: 1e12, noNaN: true, noDefaultInfinity: true }),
   capitalExpenditure: fc.double({ min: -1e12, max: 1e12, noNaN: true, noDefaultInfinity: true }),
   freeCashFlow: fc.double({ min: -1e12, max: 1e12, noNaN: true, noDefaultInfinity: true }),
@@ -50,12 +58,12 @@ const fmpQuoteItemArb = fc.record({
   change: fc.double({ min: -1e4, max: 1e4, noNaN: true, noDefaultInfinity: true }),
   changesPercentage: fc.double({ min: -100, max: 1000, noNaN: true, noDefaultInfinity: true }),
   volume: fc.integer({ min: 0, max: 2_000_000_000 }),
-  timestamp: fc.date({ min: new Date('2000-01-01'), max: new Date('2030-12-31') }).map(d => d.toISOString()),
+  timestamp: safeDateArb.map(d => d.toISOString()),
 });
 
 /** Generates a random FMP historical price item (raw API shape). */
 const fmpHistoricalPriceItemArb = fc.record({
-  date: fc.date({ min: new Date('2000-01-01'), max: new Date('2030-12-31') }).map(d => d.toISOString().slice(0, 10)),
+  date: safeDateArb.map(d => d.toISOString().slice(0, 10)),
   open: fc.double({ min: 0, max: 1e6, noNaN: true, noDefaultInfinity: true }),
   high: fc.double({ min: 0, max: 1e6, noNaN: true, noDefaultInfinity: true }),
   low: fc.double({ min: 0, max: 1e6, noNaN: true, noDefaultInfinity: true }),
